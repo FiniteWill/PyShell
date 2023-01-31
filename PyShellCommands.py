@@ -66,9 +66,38 @@ def word_count(**args: any) -> None:
                 for x in file:
                     count+=1
                     #print(x)
+                file.close()
                 print(count)
             except:
                 print("Unable to open "+str(fn_args))
+                
+def sizeof_file(**args: any) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+           try:
+                file_size = os.path.getsize(fn_args[0])
+                if(file_size > 1000):
+                    print(str(file_size/1000)+" KB")
+                elif(file_size > 1000000):
+                    print(str(file_size/1000000)+" GB")
+                else:
+                    print(str(file_size)+" B")
+           except:
+               try:
+                print(default_path+str(fn_args[0]))
+                file_size = os.path.getsize(default_path+str(fn_args[0]))
+                if(file_size > 1000):
+                    print(str(file_size/1000)+" KB")
+                elif(file_size > 1000000):
+                    print(str(file_size/1000000)+" GB")
+                else:
+                    print(str(file_size)+" B")
+               except:
+                print("Unable to open file with path: "+str(fn_args[0]))
+
+                
 '''
 File manipulation commands
 '''
@@ -86,8 +115,10 @@ def write_to_file(fd, data):
 
 
 def redirect(**args) -> None:
-    if(args != None and isinstance(args, list)):
-        if(len(args) == 2):
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
             # (process 1) >> (process 2)
             pass
 
@@ -131,7 +162,25 @@ def set_mode(**args):
         cur_mode = modes[len(modes.index(str(args)))]
 
 
-command_dict = {"help": "help", "time": "get_time", "wc" : "word_count", "quit" : "quit"}
+'''
+Paths, vars, and settings
+'''
+default_path = "C:/"
+cur_path = default_path
+
+def set_cur_path(**args) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+            new_path = str(fn_args[0])
+            try:
+                os.path.exists(new_path)
+                cur_path = str(new_path)
+            except:
+                print("Unable to change current path to "+new_path)
+                
+command_dict = {"help": "help", "time": "get_time", "wc" : "word_count",  "size" : "sizeof_file", "quit" : "quit"}
 
 '''
 Main function for parsing commands
