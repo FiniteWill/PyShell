@@ -46,7 +46,7 @@ def quit(**args: None) -> None:
 
 
 def get_time(**args: None) -> None:
-    print(time.time())
+    print(time.ctime())
 
 
 '''
