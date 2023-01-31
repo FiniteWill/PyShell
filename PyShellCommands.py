@@ -3,6 +3,9 @@ import os
 import math
 import threading
 
+'''
+Help functions and documentation
+'''
 num_help_pages = 4
 help_intro = "PyShell Help:\n"
 help_pgs = [help_intro,
@@ -39,16 +42,33 @@ def help(**args: list) -> None:
         print(help_intro)
 
 
+'''
+Utility functions
+'''
 def quit(**args: None) -> None:
     input = input("Are you sure you want to quit? Y/N. \n")
     if (str(input).lower()[0] == "Y"):
         running = False
 
 
-def get_time(**args: None) -> None:
+def get_time(**args: any) -> None:
     print(time.ctime())
 
-
+def word_count(**args: any) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+            #look for given file and try to read it
+            try:
+                file = open(fn_args[0])
+                count = 0
+                for x in file:
+                    count+=1
+                    #print(x)
+                print(count)
+            except:
+                print("Unable to open "+str(fn_args))
 '''
 File manipulation commands
 '''
@@ -64,6 +84,12 @@ def write_to_file(fd, data):
     else:
         print("Write successful!")
 
+
+def redirect(**args) -> None:
+    if(args != None and isinstance(args, list)):
+        if(len(args) == 2):
+            # (process 1) >> (process 2)
+            pass
 
 '''
 Processes
@@ -105,7 +131,7 @@ def set_mode(**args):
         cur_mode = modes[len(modes.index(str(args)))]
 
 
-command_dict = {"help": "help", "time": "get_time"}
+command_dict = {"help": "help", "time": "get_time", "wc" : "word_count", "quit" : "quit"}
 
 '''
 Main function for parsing commands
