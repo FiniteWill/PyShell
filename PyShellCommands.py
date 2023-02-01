@@ -73,6 +73,36 @@ Utility functions
 def clear(**args : None) -> None:
     os.system("cls")
     
+def set_console_color(**args: None) -> None:
+    fn_args = args.get("args")
+    
+    # color bg fg
+    '''
+    0 = Black       8 = Gray
+    1 = Blue        9 = Light Blue
+    2 = Green       A = Light Green
+    3 = Aqua        B = Light Aqua
+    4 = Red         C = Light Red
+    5 = Purple      D = Light Purple
+    6 = Yellow      E = Light Yellow
+    7 = White       F = Bright White
+    '''
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list)):
+            if(len(fn_args) >= 2):
+                try:
+                    os.system("color "+fn_args[0]+""+fn_args[1])
+                except:
+                    pass
+            elif(len(fn_args) >= 1):
+                try:
+                    os.system("color "+fn_args[0])
+                except:
+                    pass
+            # No arguments given, return to default console colors
+            else:
+                os.system("color 07")
+    
 def quit(**args: None) -> None:
     input = input("Are you sure you want to quit? Y/N. \n")
     if (str(input).lower()[0] == "Y"):
@@ -214,7 +244,7 @@ def set_cur_path(**args) -> None:
                 print("Unable to change current path to "+new_path)
                 
 command_dict = { "append" : "append", "help": "help", "time": "get_time",
-                "wc" : "word_count",  "size" : "sizeof_file", "clear" : "clear", "quit" : "quit"}
+                "wc" : "word_count",  "size" : "sizeof_file", "clear" : "clear", "color":"set_console_color", "quit" : "quit"}
 
 
 user_vars = {}
