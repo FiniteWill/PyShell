@@ -15,24 +15,38 @@ help_pgs = [help_intro,
             + "help (command: str) - prints the description of given command.\n"
             + "time - prints current time.\n", "Help 2/" + str(num_help_pages), "Help 3/" + str(num_help_pages), "Help 4/" + str(num_help_pages)]
 
+help_dict = { "help" : "Usage: help\nPrints out a standard help introduction page to the PyShell terminal.\n"+
+                "Usage: help (page)\nPrints out the help page with the number (page).",
+             "quit" : "Usage: quit\nPrompts the user if they would like to exit the PyShell terminal.",
+             "time" : "Usage: time\nPrints the current time.",
+             "size" : "Usage: size (file path)\nReturns the size of the file found at (file path)."
+             }
 
 def help(**args: list) -> None:
     fn_args = args.get("args")
     
     if (fn_args != None and isinstance(fn_args, list)):
         if (isinstance(fn_args, list) and len(fn_args) > 0):
-            try:
-                pg_num = int(fn_args[0])
-            except TypeError:
-                pg_num = 0
-            except ValueError:
-                pg_num = 0
-                
-            if (pg_num >= 0 and pg_num <= num_help_pages):
-                    print(help_pgs[pg_num])
+            if(isinstance(fn_args[0],str)):
+                try:
+                    print("-----------------------------------------------------------------------------")
+                    print(help_dict.get(fn_args[0]))
+                    print("---------------------------------------------------------------------------/n")
+                except:
+                    pass
             else:
-                # The page number argument is out of range
-                print(str(pg_num)+" is not a valid help page number. Please select a help page "+"0"+"-"+str(num_help_pages))
+                try:
+                    pg_num = int(fn_args[0])
+                except TypeError:
+                    pg_num = 0
+                except ValueError:
+                    pg_num = 0
+                    
+                if (pg_num >= 0 and pg_num <= num_help_pages):
+                        print(help_pgs[pg_num])
+                else:
+                    # The page number argument is out of range
+                    print(str(pg_num)+" is not a valid help page number. Please select a help page "+"0"+"-"+str(num_help_pages))
         else:
             # The arguments are invalid
             print("Invalid args: help only takes values 0-"+str(num_help_pages)+" as an argument. Usage: help (page number) without parenthesis")
@@ -113,6 +127,12 @@ def write_to_file(fd, data):
     else:
         print("Write successful!")
 
+def append(**args) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 2):
+            os.write(os.path(fn_args[0]))
 
 def redirect(**args) -> None:
     fn_args = args.get("args")
@@ -180,7 +200,7 @@ def set_cur_path(**args) -> None:
             except:
                 print("Unable to change current path to "+new_path)
                 
-command_dict = {"help": "help", "time": "get_time", "wc" : "word_count",  "size" : "sizeof_file", "quit" : "quit"}
+command_dict = { "append" : "append", "help": "help", "time": "get_time", "wc" : "word_count",  "size" : "sizeof_file", "quit" : "quit"}
 
 '''
 Main function for parsing commands
@@ -199,7 +219,7 @@ def parse(input_str: str) -> None:
             command = command_dict.get(tokens[0])
             if (len(tokens) > 1):
                 fn_args = tokens[1:len(tokens)]
-                print("INPUT: "+tokens[0]+"("+tokens[-1]+")")
+                #print("INPUT: "+tokens[0]+"("+tokens[-1]+")")
                 globals()[command](args=fn_args)
             else:
                 globals()[command]()
