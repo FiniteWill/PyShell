@@ -13,13 +13,21 @@ help_pgs = [help_intro,
             + "\nhelp - prints instructions for PyShell.\n"
             + "help (page: int) - prints the indicated help page\n."
             + "help (command: str) - prints the description of given command.\n"
-            + "time - prints current time.\n", "Help 2/" + str(num_help_pages), "Help 3/" + str(num_help_pages), "Help 4/" + str(num_help_pages)]
+            + "time - prints current time.\n",
+            "Help 2/" + str(num_help_pages)
+            + "",
+            "Help 3/" + str(num_help_pages)
+            + "",
+            "Help 4/" + str(num_help_pages)
+            + ""]
 
 help_dict = { "help" : "Usage: help\nPrints out a standard help introduction page to the PyShell terminal.\n"+
                 "Usage: help (page)\nPrints out the help page with the number (page).",
              "quit" : "Usage: quit\nPrompts the user if they would like to exit the PyShell terminal.",
              "time" : "Usage: time\nPrints the current time.",
-             "size" : "Usage: size (file path)\nReturns the size of the file found at (file path)."
+             "size" : "Usage: size (file path)\nReturns the size of the file found at (file path).",
+             "wc" : "Usage: wc (file path)\nReturns the number of words in a file found at (file path).",
+             "clear" : "Usage: clear\nClears the PyShell terminal."
              }
 
 def help(**args: list) -> None:
@@ -27,13 +35,16 @@ def help(**args: list) -> None:
     
     if (fn_args != None and isinstance(fn_args, list)):
         if (isinstance(fn_args, list) and len(fn_args) > 0):
+            # Print description and information on a command if input is a str in help_dict
             if(isinstance(fn_args[0],str)):
                 try:
-                    print("-----------------------------------------------------------------------------")
-                    print(help_dict.get(fn_args[0]))
-                    print("---------------------------------------------------------------------------/n")
+                    if(help_dict.get(fn_args[0] != None)):
+                        print("-----------------------------------------------------------------------------")
+                        print(help_dict.get(fn_args[0]))
+                        print("-----------------------------------------------------------------------------\n")
                 except:
                     pass
+            # Print a help page if the argument is a valid page number
             else:
                 try:
                     pg_num = int(fn_args[0])
@@ -48,22 +59,24 @@ def help(**args: list) -> None:
                     # The page number argument is out of range
                     print(str(pg_num)+" is not a valid help page number. Please select a help page "+"0"+"-"+str(num_help_pages))
         else:
-            # The arguments are invalid
+            # The page number arguments are invalid
             print("Invalid args: help only takes values 0-"+str(num_help_pages)+" as an argument. Usage: help (page number) without parenthesis")
-            print(help_intro)
     else:
-        # There are no arguments
+        # There are no arguments (print the default )
         print(help_intro)
 
 
 '''
 Utility functions
 '''
+
+def clear(**args : None) -> None:
+    os.system("cls")
+    
 def quit(**args: None) -> None:
     input = input("Are you sure you want to quit? Y/N. \n")
     if (str(input).lower()[0] == "Y"):
         running = False
-
 
 def get_time(**args: any) -> None:
     print(time.ctime())
@@ -200,13 +213,48 @@ def set_cur_path(**args) -> None:
             except:
                 print("Unable to change current path to "+new_path)
                 
-command_dict = { "append" : "append", "help": "help", "time": "get_time", "wc" : "word_count",  "size" : "sizeof_file", "quit" : "quit"}
+command_dict = { "append" : "append", "help": "help", "time": "get_time",
+                "wc" : "word_count",  "size" : "sizeof_file", "clear" : "clear", "quit" : "quit"}
 
+
+user_vars = {}
+
+'''
+Adds or updates variable in user-defined variables
+'''
+def set_var(**args) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+            if(not fn_args[0] in user_vars):
+                user_vars.update({fn_args[0] : fn_args[1]})
+'''
+Removes variable in user-defined variables
+'''
+def del_var(**args) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+            user_vars.__delitem__(fn_args[0])
+
+'''
+Prints variable value in user-defined variables
+'''
+def print_var(**args) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+            for arg in fn_args:
+                print(user_vars.get(arg))
+    else:
+        for var in user_vars:
+            print(var)
 '''
 Main function for parsing commands
 '''
-
-
 def parse(input_str: str) -> None:
     if (isinstance(input_str, str)):
         # tokenize input
