@@ -27,7 +27,8 @@ help_dict = { "help" : "Usage: help\nPrints out a standard help introduction pag
              "time" : "Usage: time\nPrints the current time.",
              "size" : "Usage: size (file path)\nReturns the size of the file found at (file path).",
              "wc" : "Usage: wc (file path)\nReturns the number of words in a file found at (file path).",
-             "clear" : "Usage: clear\nClears the PyShell terminal."
+             "clear" : "Usage: clear\nClears the PyShell terminal.",
+             "typescript" : "Usage: typescript (start/stop)\n Starts or stops the logging of terminal commands into a typescript."
              }
 
 def help(**args: list) -> None:
@@ -153,17 +154,64 @@ def sizeof_file(**args: any) -> None:
                     print(str(file_size)+" B")
                except:
                 print("Unable to open file with path: "+str(fn_args[0]))
+                
+'''
+Functions and vars related to typescript for logging shell commands
+'''
+default_typescript_dir = "C:/"
+cur_typescript_dir = "PyShell-Typescript"
+cur_typescript_file = cur_typescript_dir+"/Typescript-"+"default"+".txt"
+typescript_running = False
+
+def typescript(**args: str) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+            
+            if(fn_args[0] == ""):
+                typescript_running = not typescript_running
+            elif(fn_args[0].lower() == "on"):
+                typescript_running = True
+            elif(fn_args[0].lower() == "off"):
+                typescript_running = False
+                
+# Used by shell when typescript_running is True to write user input to cur_typescript_file
+def typescript_log(**args: str) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+            
+            typescript_file = open(cur_typescript_file)
+            for arg in fn_args:
+                typescript_file.write(str(arg))
+            typescript_file.close()
+            
+    
 
                 
 '''
 File manipulation commands
 '''
 
+def create_dir(**args) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+            try:
+                os.mkdir(fn_args[0])
+            except:
+                print("Unable to make directory: "+str(fn_args[0]))
 
-def create_file(file_name: str, file_dir: str) -> None:
-    print("Create file")
-
-
+def create_file(**args) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+            pass
+            
 def write_to_file(fd, data):
     if os.write(fd, data) != 0:
         print("Failed to write to ", fd)
@@ -183,7 +231,8 @@ def redirect(**args) -> None:
     if (fn_args != None and isinstance(fn_args, list)):
         if (isinstance(fn_args, list) and len(fn_args) > 0):
             # (process 1) >> (process 2)
-            pass
+            pass       
+
 
 '''
 Processes
@@ -287,6 +336,10 @@ Main function for parsing commands
 '''
 def parse(input_str: str) -> None:
     if (isinstance(input_str, str)):
+        
+        if typescript_running:
+            typescript_log(input_str)
+    
         # tokenize input
         tokens = input_str.split()
         fn_args = []
