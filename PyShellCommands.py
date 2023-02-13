@@ -34,36 +34,33 @@ help_dict = { "help" : "Usage: help\nPrints out a standard help introduction pag
 def help(**args: list) -> None:
     fn_args = args.get("args")
     
+    # Check that there are str arguments
     if (fn_args != None and isinstance(fn_args, list)):
         if (isinstance(fn_args, list) and len(fn_args) > 0):
-            # Print description and information on a command if input is a str in help_dict
-            if(isinstance(fn_args[0],str)):
-                try:
-                    if(help_dict.get(fn_args[0] != None)):
-                        print("-----------------------------------------------------------------------------")
-                        print(help_dict.get(fn_args[0]))
-                        print("-----------------------------------------------------------------------------\n")
-                except:
-                    pass
-            # Print a help page if the argument is a valid page number
+            # Print description and information on a command if input is a str in help_dict    
+            if(help_dict.get(fn_args[0]) != None):
+                print("-----------------------------------------------------------------------------")
+                print(help_dict.get(fn_args[0]))
+                print("-----------------------------------------------------------------------------\n")
+            # Check if the input is a valid help page number
             else:
+                pg_num = None
                 try:
                     pg_num = int(fn_args[0])
-                except TypeError:
-                    pg_num = 0
-                except ValueError:
-                    pg_num = 0
-                    
-                if (pg_num >= 0 and pg_num <= num_help_pages):
+                    # The given argument is not a valid page number or known command and is invalid (notify user)
+                except:
+                    pg_num = None
+                        
+                if pg_num != None:
+                    if (pg_num >= 0 and pg_num <= num_help_pages):
                         print(help_pgs[pg_num])
+                        # The page number argument is out of range (notify user)
+                    else:
+                        print(str(pg_num))+" is not a valid help page number. Please select a help page "+"0"+"-"+str(num_help_pages)
                 else:
-                    # The page number argument is out of range
-                    print(str(pg_num)+" is not a valid help page number. Please select a help page "+"0"+"-"+str(num_help_pages))
-        else:
-            # The page number arguments are invalid
-            print("Invalid args: help only takes values 0-"+str(num_help_pages)+" as an argument. Usage: help (page number) without parenthesis")
+                    print("help only takes numbers 0-"+str(num_help_pages)+" or the name of a command as an argument.")    
+    # There are no arguments (print the default help page)
     else:
-        # There are no arguments (print the default )
         print(help_intro)
 
 
@@ -105,9 +102,10 @@ def set_console_color(**args: None) -> None:
                 os.system("color 07")
     
 def quit(**args: None) -> None:
-    input = input("Are you sure you want to quit? Y/N. \n")
-    if (str(input).lower()[0] == "Y"):
-        running = False
+    user_input = input("Are you sure you want to quit? Y/N. \n")
+    if (str(user_input).lower()[0] == "y"):
+        print("Exiting PyShell.")
+        os._exit(0)
 
 def get_time(**args: any) -> None:
     print(time.ctime())
@@ -223,7 +221,8 @@ def append(**args) -> None:
     
     if (fn_args != None and isinstance(fn_args, list)):
         if (isinstance(fn_args, list) and len(fn_args) > 2):
-            os.write(os.path(fn_args[0]))
+            for i in range(1,len(fn_args)-1):
+                os.write(os.path(fn_args[0]), fn_args[i])
 
 def redirect(**args) -> None:
     fn_args = args.get("args")
@@ -293,7 +292,8 @@ def set_cur_path(**args) -> None:
                 print("Unable to change current path to "+new_path)
                 
 command_dict = { "append" : "append", "help": "help", "time": "get_time",
-                "wc" : "word_count",  "size" : "sizeof_file", "clear" : "clear", "color":"set_console_color", "quit" : "quit"}
+                "wc" : "word_count",  "size" : "sizeof_file", "clear" : "clear",
+                "color":"set_console_color", "typescript":"typescript", "quit" : "quit"}
 
 
 user_vars = {}
