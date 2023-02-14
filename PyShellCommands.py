@@ -154,42 +154,6 @@ def sizeof_file(**args: any) -> None:
                 print("Unable to open file with path: "+str(fn_args[0]))
                 
 '''
-Functions and vars related to typescript for logging shell commands
-'''
-default_typescript_dir = "C:/"
-cur_typescript_dir = "PyShell-Typescript"
-cur_typescript_file = cur_typescript_dir+"/Typescript-"+"default"+".txt"
-typescript_running = False
-
-def typescript(**args: str) -> None:
-    fn_args = args.get("args")
-    
-    if (fn_args != None and isinstance(fn_args, list)):
-        if (isinstance(fn_args, list) and len(fn_args) > 0):
-            
-            if(fn_args[0] == ""):
-                typescript_running = not typescript_running
-            elif(fn_args[0].lower() == "on"):
-                typescript_running = True
-            elif(fn_args[0].lower() == "off"):
-                typescript_running = False
-                
-# Used by shell when typescript_running is True to write user input to cur_typescript_file
-def typescript_log(**args: str) -> None:
-    fn_args = args.get("args")
-    
-    if (fn_args != None and isinstance(fn_args, list)):
-        if (isinstance(fn_args, list) and len(fn_args) > 0):
-            
-            typescript_file = open(cur_typescript_file)
-            for arg in fn_args:
-                typescript_file.write(str(arg))
-            typescript_file.close()
-            
-    
-
-                
-'''
 File manipulation commands
 '''
 
@@ -218,11 +182,15 @@ def write_to_file(fd, data):
 
 def append(**args) -> None:
     fn_args = args.get("args")
-    
     if (fn_args != None and isinstance(fn_args, list)):
         if (isinstance(fn_args, list) and len(fn_args) > 2):
-            for i in range(1,len(fn_args)-1):
-                os.write(os.path(fn_args[0]), fn_args[i])
+            file = None
+            # Open file with append argument
+            file = open(fn_args[0], "a")
+            if file != None:
+                for i in range(1,len(fn_args)-1):
+                    file.write(fn_args[i])
+                    file.write("\n")
 
 def redirect(**args) -> None:
     fn_args = args.get("args")
@@ -249,6 +217,41 @@ def suspend_process(**args):
 def kill_process(**args):
     os.kill(args[0])
 
+
+'''
+Functions and vars related to typescript for logging shell commands
+'''
+default_typescript_dir = "C:/PyShell-Typescript"
+cur_typescript_dir = default_typescript_dir
+cur_typescript_file = cur_typescript_dir+"/"+"DefaultTS"+".txt"
+typescript_running = False
+
+def typescript(**args: str) -> None:
+    global typescript_running
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):  
+            if(fn_args[0].lower() == "on"):
+                typescript_running = True
+            elif(fn_args[0].lower() == "off"):
+                typescript_running = False
+    else:
+        typescript_running = not(typescript_running)
+    print("Typescript logging: "+str(typescript_running)+" "+str(cur_typescript_file))    
+            
+# Used by shell when typescript_running is True to write user input to cur_typescript_file
+def typescript_log(**args: str) -> None:
+    fn_args = args.get("args")
+    
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 0):
+            
+            # Add all args to end of list with arg using current typescript file (so the file will always be correct)
+            append_args = [cur_typescript_file]
+            for arg in fn_args:
+                append_args.append(arg)
+            append(args = append_args)
 
 '''
 Modes (PyShell context management)
@@ -291,11 +294,6 @@ def set_cur_path(**args) -> None:
             except:
                 print("Unable to change current path to "+new_path)
                 
-command_dict = { "append" : "append", "help": "help", "time": "get_time",
-                "wc" : "word_count",  "size" : "sizeof_file", "clear" : "clear",
-                "color":"set_console_color", "typescript":"typescript", "quit" : "quit"}
-
-
 user_vars = {}
 
 '''
@@ -331,18 +329,28 @@ def print_var(**args) -> None:
     else:
         for var in user_vars:
             print(var)
+            
+            
+            
+command_dict = { "append" : "append", "help": "help", "time": "get_time",
+                "wc" : "word_count",  "size" : "sizeof_file", "clear" : "clear",
+                "color":"set_console_color", "ts" : "typescript", "typescript":"typescript",
+                "quit" : "quit"}
+
 '''
 Main function for parsing commands
 '''
 def parse(input_str: str) -> None:
+    global typescript_running
+    
     if (isinstance(input_str, str)):
-        
-        if typescript_running:
-            typescript_log(input_str)
     
         # tokenize input
         tokens = input_str.split()
         fn_args = []
+        
+        if typescript_running:
+            typescript_log(args=tokens)
 
         # Sends dictionary with 1 item 'args' mapping to the list of arguments provided after the first command in tokens
         # This will be None if input_str does not have any spaces (len of tokens < 2)
