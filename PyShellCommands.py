@@ -11,11 +11,17 @@ help_intro = "PyShell Help:\n"
 help_pgs = [help_intro,
             "Help 1/" + str(num_help_pages)
             + "\nhelp - prints instructions for PyShell.\n"
-            + "help (page: int) - prints the indicated help page\n."
+            + "help (page: int) - prints the indicated help page.\n"
             + "help (command: str) - prints the description of given command.\n"
-            + "time - prints current time.\n",
+            + "time - prints current time.\n"
+            + "quit - prompts the user to exit the terminal.\n"
+            + "wc - (file path: str) - Returns the number of words in a file.\n",
             "Help 2/" + str(num_help_pages)
-            + "",
+            + "\n file (file path: str) - Creates a file at the given file path.\n"
+            + "dir (dir path: str) - Create a folder at the given directory path.\n"
+            + "write (file name: str) (\"data\") - Writes data to the given file. Using quotes around the\n"
+                +"data will allow multiple words to be printed on one line. THIS WILL OVERWRITE EXISTING DATA\n"
+            + "append (file name: str (\"data\") - Appends data to the given file.)",
             "Help 3/" + str(num_help_pages)
             + "",
             "Help 4/" + str(num_help_pages)
@@ -28,7 +34,13 @@ help_dict = { "help" : "Usage: help\nPrints out a standard help introduction pag
              "size" : "Usage: size (file path)\nReturns the size of the file found at (file path).",
              "wc" : "Usage: wc (file path)\nReturns the number of words in a file found at (file path).",
              "clear" : "Usage: clear\nClears the PyShell terminal.",
-             "typescript" : "Usage: typescript (start/stop)\n Starts or stops the logging of terminal commands into a typescript."
+             "typescript" : "Usage: typescript (start/stop)\n Starts or stops the logging of terminal commands into a typescript.",
+             "file" : "Usage: file (file name)\n Creates a file with the given name.",
+             "dir" : "Usage: dir (dir name)\n Creates a folder with the given name.",
+             "write" : "Usage: write (file name) \"(data)\"\n Writes data to the given file. THIS WILL OVERWRITE EXISTING DATA."
+              + "Using quotes around a data argument allows multiple words to be printed on one line." ,
+              "append" : "Usage: append (file name) \"(data)\"\n Appends data the the given file.\n"
+              + "Using quotes around a data argument allows multiple words to be printed on one line."
              }
 
 def help(**args: list) -> None:
@@ -165,20 +177,33 @@ def create_dir(**args) -> None:
             try:
                 os.mkdir(fn_args[0])
             except:
-                print("Unable to make directory: "+str(fn_args[0]))
+                print("Unable to create directory: "+str(fn_args[0]))
 
 def create_file(**args) -> None:
     fn_args = args.get("args")
     
     if (fn_args != None and isinstance(fn_args, list)):
         if (isinstance(fn_args, list) and len(fn_args) > 0):
-            pass
+            if(isinstance(fn_args[0]), str):
+                try:
+                    file = open(fn_args[0], "x")    
+                    print(str(fn_args[0])+" was created successfully.")
+                except:
+                    print(str(fn_args[0])+" could not be created.")
+                    
             
-def write_to_file(fd, data):
-    if os.write(fd, data) != 0:
-        print("Failed to write to ", fd)
-    else:
-        print("Write successful!")
+def write_to_file(**args):
+    fn_args = args.get("args")
+    if (fn_args != None and isinstance(fn_args, list)):
+        if (isinstance(fn_args, list) and len(fn_args) > 2):
+            file = None
+            # Open file with write argument
+            file = open(fn_args[0], "w")
+            if file != None:
+                for i in range(1,len(fn_args)):
+                    file.write(fn_args[i])
+                    file.write("\n")
+                file.close()
 
 def append(**args) -> None:
     fn_args = args.get("args")
@@ -188,9 +213,10 @@ def append(**args) -> None:
             # Open file with append argument
             file = open(fn_args[0], "a")
             if file != None:
-                for i in range(1,len(fn_args)-1):
+                for i in range(1,len(fn_args)):
                     file.write(fn_args[i])
                     file.write("\n")
+                file.close()
 
 def redirect(**args) -> None:
     fn_args = args.get("args")
@@ -283,6 +309,7 @@ default_path = "C:/"
 cur_path = default_path
 
 def set_cur_path(**args) -> None:
+    global cur_path
     fn_args = args.get("args")
     
     if (fn_args != None and isinstance(fn_args, list)):
@@ -292,9 +319,11 @@ def set_cur_path(**args) -> None:
                 os.path.exists(new_path)
                 cur_path = str(new_path)
             except:
-                print("Unable to change current path to "+new_path)
+                print("Unable to change current path to "+str(new_path))
                 
-user_vars = {}
+global user_vars
+user_vars = {} 
+'''Variables that the user has declared and assigned.'''
 
 '''
 Adds or updates variable in user-defined variables
@@ -335,7 +364,7 @@ def print_var(**args) -> None:
 command_dict = { "append" : "append", "help": "help", "time": "get_time",
                 "wc" : "word_count",  "size" : "sizeof_file", "clear" : "clear",
                 "color":"set_console_color", "ts" : "typescript", "typescript":"typescript",
-                "quit" : "quit"}
+                "quit" : "quit", "write" : "write_to_file", "file" : "file", "dir" : "dir"}
 
 '''
 Main function for parsing commands
