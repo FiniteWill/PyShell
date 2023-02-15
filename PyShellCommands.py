@@ -21,8 +21,9 @@ help_pgs = [help_intro,
             + "dir (dir path: str) - Create a folder at the given directory path.\n"
             + "write (file name: str) (\"data\") - Writes data to the given file. Using quotes around the\n"
             + "data will allow multiple words to be printed on one line. THIS WILL OVERWRITE EXISTING DATA\n"
-            + "append (file name: str) (\"data\") - Appends data to the given file.)"
-            + "cat (file name: str) (data : any) - Concatenates data to the given file and then prints the contents. of the file",
+            + "append (file name: str) (\"data\") - Appends data to the given file.)\n"
+            + "cat (file name: str) (data : any) - Concatenates data to the given file and then prints the contents. of the file\n"
+            + "history - Prints out the command history for the current session.",
             "Help 3/" + str(num_help_pages)
             + "",
             "Help 4/" + str(num_help_pages)
@@ -35,14 +36,15 @@ help_dict = {"help": "Usage: help\nPrints out a standard help introduction page 
              "size": "Usage: size (file path)\nReturns the size of the file found at (file path).",
              "wc": "Usage: wc (file path)\nReturns the number of words in a file found at (file path).",
              "clear": "Usage: clear\nClears the PyShell terminal.",
-             "typescript": "Usage: typescript (start/stop)\n Starts or stops the logging of terminal commands into a typescript.",
-             "file": "Usage: file (file name)\n Creates a file with the given name.",
-             "dir": "Usage: dir (dir name)\n Creates a folder with the given name.",
-             "write": "Usage: write (file name) \"(data)\"\n Writes data to the given file. THIS WILL OVERWRITE EXISTING DATA."
+             "typescript": "Usage: typescript (start/stop)\nStarts or stops the logging of terminal commands into a typescript.",
+             "file": "Usage: file (file name)\nCreates a file with the given name.",
+             "dir": "Usage: dir (dir name)\nCreates a folder with the given name.",
+             "write": "Usage: write (file name) \"(data)\"\nWrites data to the given file. THIS WILL OVERWRITE EXISTING DATA."
              + "Using quotes around a data argument allows multiple words to be printed on one line.",
-             "append": "Usage: append (file name) \"(data)\"\n Appends data the the given file.\n"
+             "append": "Usage: append (file name) \"(data)\"\nAppends data the the given file.\n"
              + "Using quotes around a data argument allows multiple words to be printed on one line.",
-             "cat": "Usage: cat (file name) (data)\n Concatenates data to the given file and then prints the contents of the file."
+             "cat": "Usage: cat (file name) (data)\nConcatenates data to the given file and then prints the contents of the file.",
+             "history" : "Usage: history\nPrints the command history for the current session."
              }
 
 
@@ -86,7 +88,13 @@ def help(**args: list) -> None:
 '''
 Utility functions
 '''
+command_history = []
 
+def history(**args: None) -> None:
+    print("======session command history====")
+    for command in command_history:
+        print(command_history.index(command),": ",command)
+    print("=================================")
 
 def clear(**args: None) -> None:
     os.system("cls")
@@ -433,22 +441,23 @@ def print_var(**args) -> None:
 command_dict = {"append": "append", "help": "help", "time": "get_time",
                 "wc": "word_count",  "size": "sizeof_file", "clear": "clear",
                 "color": "set_console_color", "ts": "typescript", "typescript": "typescript",
-                "quit": "quit", "write": "write_to_file", "file": "file", "dir": "dir", "cat": "concatenate"}
+                "quit": "quit", "write": "write_to_file", "file": "file", "dir": "dir", "cat": "concatenate",
+                "history": "history"}
 
 '''
 Main function for parsing commands
 '''
-
-
 def parse(input_str: str) -> None:
     global typescript_running
+    global command_history
 
     if (isinstance(input_str, str)):
-
-        # tokenize input
+        # Add input to command history 
+        command_history.append(input_str)
+        # Tokenize input
         tokens = input_str.split()
         fn_args = []
-
+    
         if typescript_running:
             typescript_log(args=tokens)
 
