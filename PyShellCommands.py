@@ -9,15 +9,15 @@ Help functions and documentation
 num_help_pages = 4
 help_intro = "PyShell Help:\n"
 help_pgs = [help_intro,
-            "Help 1/" + str(num_help_pages)
-            + "\nhelp - prints instructions for PyShell.\n"
+            "Help 1/" + str(num_help_pages) + "\n"
+            + "help - prints instructions for PyShell.\n"
             + "help (page: int) - prints the indicated help page.\n"
             + "help (command: str) - prints the description of given command.\n"
             + "time - prints current time.\n"
             + "quit - prompts the user to exit the terminal.\n"
             + "wc - (file path: str) - Returns the number of words in a file.\n",
-            "Help 2/" + str(num_help_pages)
-            + "\n file (file path: str) - Creates a file at the given file path.\n"
+            "Help 2/" + str(num_help_pages) + "\n"
+            + "file (file path: str) - Creates a file at the given file path.\n"
             + "dir (dir path: str) - Create a folder at the given directory path.\n"
             + "write (file name: str) (\"data\") - Writes data to the given file. Using quotes around the\n"
                 +"data will allow multiple words to be printed on one line. THIS WILL OVERWRITE EXISTING DATA\n"
@@ -191,31 +191,36 @@ def create_file(**args) -> None:
                 except:
                     print(str(fn_args[0])+" could not be created.")
                     
-            
-def write_to_file(**args):
+
+def write_to_file(**args) -> None:
     fn_args = args.get("args")
     if (fn_args != None and isinstance(fn_args, list)):
-        if (isinstance(fn_args, list) and len(fn_args) > 2):
+        if (len(fn_args) > 2):
             file = None
             # Open file with write argument
             file = open(fn_args[0], "w")
             if file != None:
                 for i in range(1,len(fn_args)):
                     file.write(fn_args[i])
-                    file.write("\n")
+                    file.write(" ")
+                file.write("\n")
                 file.close()
 
+
 def append(**args) -> None:
+    print(args)
     fn_args = args.get("args")
+    print(fn_args)
     if (fn_args != None and isinstance(fn_args, list)):
-        if (isinstance(fn_args, list) and len(fn_args) > 2):
+        if (len(fn_args) > 2):
             file = None
             # Open file with append argument
             file = open(fn_args[0], "a")
             if file != None:
                 for i in range(1,len(fn_args)):
                     file.write(fn_args[i])
-                    file.write("\n")
+                    file.write(" ")
+                file.write("\n")
                 file.close()
 
 def redirect(**args) -> None:
@@ -272,11 +277,12 @@ def typescript_log(**args: str) -> None:
     
     if (fn_args != None and isinstance(fn_args, list)):
         if (isinstance(fn_args, list) and len(fn_args) > 0):
-            
             # Add all args to end of list with arg using current typescript file (so the file will always be correct)
             append_args = [cur_typescript_file]
             for arg in fn_args:
                 append_args.append(arg)
+            # Add time stamp at the end of the command log
+            append_args.append(str(time.ctime()))
             append(args = append_args)
 
 '''
