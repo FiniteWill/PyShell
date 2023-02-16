@@ -2,6 +2,7 @@ import time
 import os
 import math
 import threading
+import webbrowser
 
 '''
 Help functions and documentation
@@ -56,11 +57,9 @@ def help(**args: list) -> None:
         if len(fn_args) > 0:
             # Print description and information on a command if input is a str in help_dict
             if (help_dict.get(fn_args[0]) != None):
-                print(
-                    "-----------------------------------------------------------------------------")
+                print("-----------------------------------------------------------------------------")
                 print(help_dict.get(fn_args[0]))
-                print(
-                    "-----------------------------------------------------------------------------\n")
+                print("-----------------------------------------------------------------------------\n")
             # Check if the input is a valid help page number
             else:
                 pg_num = None
@@ -437,12 +436,18 @@ def print_var(**args) -> None:
         for var in user_vars:
             print(var)
 
+def browse(**args):
+    fn_args = args.get("args")
+    url = fn_args[0]
+    if(isinstance(url, str)):
+        webbrowser.open_new_tab(url)
+
 
 command_dict = {"append": "append", "help": "help", "time": "get_time",
                 "wc": "word_count",  "size": "sizeof_file", "clear": "clear",
                 "color": "set_console_color", "ts": "typescript", "typescript": "typescript",
                 "quit": "quit", "write": "write_to_file", "file": "file", "dir": "dir", "cat": "concatenate",
-                "history": "history"}
+                "history": "history", "browse" : "browse"}
 
 '''
 Main function for parsing commands
