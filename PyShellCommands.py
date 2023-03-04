@@ -236,16 +236,17 @@ def create_file(**args) -> None:
 def read_from_file(**args) -> any:
     fn_args = args.get("args")
     if (fn_args != None and isinstance(fn_args, list)):
-        file = None
-        # Open file with write argument
-        file = open(fn_args[0], "r")
-        if file != None:
-            file_str = ""
-            for x in file:
-                file_str+=str(x)
-            return file_str
-        else:
-            return None
+        if(len(fn_args > 2)):
+            file = None
+            # Open file with write argument
+            try:
+                file = open(fn_args[0], "r")
+                file_str = ""
+                for x in file:
+                    file_str+=str(x)
+                return file_str
+            except:
+                print("Unable to read from file: "+str(fn_args[0]))
 
 
 def write_to_file(**args) -> None:
@@ -254,13 +255,14 @@ def write_to_file(**args) -> None:
         if (len(fn_args) > 2):
             file = None
             # Open file with write argument
-            file = open(fn_args[0], "w")
-            if file != None:
+            try:
+                file = open(fn_args[0], "w")
                 for i in range(1, len(fn_args)):
                     file.write(fn_args[i])
-                    file.write(" ")
-                file.write("\n")
+                    file.write("\n")
                 file.close()
+            except:
+                print("Unable to write to file: "+str(fn_args[0]))
 
 
 def append(**args) -> None:
@@ -269,13 +271,14 @@ def append(**args) -> None:
         if (len(fn_args) > 2):
             file = None
             # Open file with append argument
-            file = open(fn_args[0], "a")
-            if file != None:
+            try:
+                file = open(fn_args[0], "a")
                 for i in range(1, len(fn_args)):
                     file.write(fn_args[i])
-                    file.write(" ")
-                file.write("\n")
+                    file.write("\n")
                 file.close()
+            except:
+                print("Unable to append to file: "+str(fn_args[0]))
 
 
 def redirect(**args) -> None:
@@ -446,9 +449,56 @@ def browse(**args):
 command_dict = {"append": "append", "help": "help", "time": "get_time",
                 "wc": "word_count",  "size": "sizeof_file", "clear": "clear",
                 "color": "set_console_color", "ts": "typescript", "typescript": "typescript",
-                "quit": "quit", "write": "write_to_file", "file": "file", "dir": "dir", "cat": "concatenate",
+                "quit": "quit", "write": "write_to_file", "file": "file", "dir": "create_dir", "cat": "concatenate",
                 "history": "history", "browse" : "browse"}
 
+def tokenize(input:str) -> list:
+    '''Tokenizes input into a list of strings.
+    Input is delimited by spaces and closed double quotes.'''
+    quote_arg = ""
+    cur_arg = ""
+    quotes = 0
+    args = []
+    lq = 0
+    rq = 0
+    index = 0
+    for x in enumerate(input):
+        # handling double quotes
+        if x[1] == "\"":
+            quotes+=1
+            # even number of quotes, send everything inside of quotes as one arg
+            if quotes % 2 == 0 and quotes != 0:
+                rq = x[0]
+                # in case there is an empty closed double quotes "", this prevents " from being added to an arg
+                if rq != lq+1:
+                    quote_arg = input[lq+1:rq]
+                    args.append(quote_arg)
+                quote_arg = ""
+            # odd number of quotes, set new left quote value (used to splice input to get content inside of quotes)
+            elif quotes % 2 == 1 and quotes != 0:
+                lq = x[0]
+        # content inside of the quote enclosure (left quote has not been closed yet)
+        elif quotes % 2 == 1:
+            quote_arg+=x[1]
+        # content outside of a quote enclosure 
+        elif x[1] == " ":    
+            if cur_arg != "":
+                args.append(cur_arg)
+            cur_arg = ""
+        # the end of the input (otherwise final arg will not be added correctly)
+        elif x[0] == len(input)-1:
+            cur_arg+=x[1]
+            args.append(cur_arg)
+        # any other character
+        else:
+            cur_arg+=x[1]
+            
+    # Check that the number of quotes is even
+    if quotes % 2 != 0:
+        return input.split()
+    else:
+        return args
+    
 '''
 Main function for parsing commands
 '''
@@ -459,8 +509,9 @@ def parse(input_str: str) -> None:
     if (isinstance(input_str, str)):
         # Add input to command history 
         command_history.append(input_str)
+
         # Tokenize input
-        tokens = input_str.split()
+        tokens = tokenize(input_str)
         fn_args = []
     
         if typescript_running:
@@ -472,12 +523,8 @@ def parse(input_str: str) -> None:
             command = command_dict.get(tokens[0])
             if (len(tokens) > 1):
                 fn_args = tokens[1:len(tokens)]
-                #print("INPUT: "+tokens[0]+"("+tokens[-1]+")")
                 globals()[command](args=fn_args)
             else:
                 globals()[command]()
         else:
-            pass
-            # print("whats in the dictionary")
-            # for x in command_dict:
-            #     print(x)
+            print("Invalid command: enter 'help' for help.")
