@@ -8,7 +8,7 @@ import webbrowser
 Help functions and documentation
 '''
 num_help_pages = 4
-help_intro = "PyShell Help:\n"
+help_intro = "PyShell Help:\n" + "Type 'help [0-"+str(num_help_pages)+"]' to view one of the help pages to view commands.\n"+"Type 'help [command]' to get information on that command.\n"
 help_pgs = [help_intro,
             "Help 1/" + str(num_help_pages) + "\n"
             + "help - prints instructions for PyShell.\n"
@@ -514,6 +514,7 @@ def parse(input_str: str) -> None:
         tokens = tokenize(input_str)
         fn_args = []
     
+        # Log command into typescript file if enabled
         if typescript_running:
             typescript_log(args=tokens)
 
