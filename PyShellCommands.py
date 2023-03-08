@@ -11,15 +11,17 @@ num_help_pages = 4
 help_intro = "PyShell Help:\n" + "Type 'help [0-"+str(num_help_pages)+"]' to view one of the help pages to view commands.\n"+"Type 'help [command]' to get information on that command.\n"
 help_pgs = [help_intro,
             "Help 1/" + str(num_help_pages) + "\n"
-            + "help - prints instructions for PyShell.\n"
-            + "help (page: int) - prints the indicated help page.\n"
-            + "help (command: str) - prints the description of given command.\n"
-            + "time - prints current time.\n"
-            + "quit - prompts the user to exit the terminal.\n"
+            + "help - Prints instructions for PyShell.\n"
+            + "help (page: int) - Prints the indicated help page.\n"
+            + "help (command: str) - Prints the description of given command.\n"
+            + "login - Begins a login session prompting the user for a username and then a password."
+            + "time - Prints current time.\n"
+            + "quit - Prompts the user to exit the terminal.\n"
             + "wc - (file path: str) - Returns the number of words in a file.\n",
             "Help 2/" + str(num_help_pages) + "\n"
             + "file (file path: str) - Creates a file at the given file path.\n"
             + "dir (dir path: str) - Create a folder at the given directory path.\n"
+            + "pwd - Prints the working directory.\n"
             + "write (file name: str) (\"data\") - Writes data to the given file. Using quotes around the\n"
             + "data will allow multiple words to be printed on one line. THIS WILL OVERWRITE EXISTING DATA\n"
             + "append (file name: str) (\"data\") - Appends data to the given file.)\n"
@@ -32,6 +34,7 @@ help_pgs = [help_intro,
 
 help_dict = {"help": "Usage: help\nPrints out a standard help introduction page to the PyShell terminal.\n" +
              "Usage: help (page)\nPrints out the help page with the number (page).",
+             "login": "Usage login\nBegins a login session prompting the user for a username and then a password.",
              "quit": "Usage: quit\nPrompts the user if they would like to exit the PyShell terminal.",
              "time": "Usage: time\nPrints the current time.",
              "size": "Usage: size (file path)\nReturns the size of the file found at (file path).",
@@ -45,7 +48,8 @@ help_dict = {"help": "Usage: help\nPrints out a standard help introduction page 
              "append": "Usage: append (file name) \"(data)\"\nAppends data the the given file.\n"
              + "Using quotes around a data argument allows multiple words to be printed on one line.",
              "cat": "Usage: cat (file name) (data)\nConcatenates data to the given file and then prints the contents of the file.",
-             "history" : "Usage: history\nPrints the command history for the current session."
+             "history" : "Usage: history\nPrints the command history for the current session.",
+             "pwd" : "Usage: pwd\nPrints the working directory."
              }
 
 
@@ -176,7 +180,12 @@ def concatenate(**args: any) -> None:
             print(contents)
             print("----------------End of contents of "+str(fn_args[0])+"------------")
 
-
+def pwd(**args:any)->None:
+    '''
+    Prints the working directory.
+    '''
+    print(os.getcwd())
+    
 def sizeof_file(**args: any) -> None:
     fn_args = args.get("args")
 
@@ -372,7 +381,7 @@ def set_mode(**args):
 
 
 '''
-Paths, vars, and settings
+Paths, vars, and settings (data specific to each user)
 '''
 default_path = "C:/"
 cur_path = default_path
@@ -408,7 +417,6 @@ def set_var(**args) -> None:
         if len(fn_args) > 0:
             if (not fn_args[0] in user_vars):
                 user_vars.update({fn_args[0]: fn_args[1]})
-
 
 '''
 Removes variable in user-defined variables
@@ -450,7 +458,7 @@ command_dict = {"append": "append", "help": "help", "time": "get_time",
                 "wc": "word_count",  "size": "sizeof_file", "clear": "clear",
                 "color": "set_console_color", "ts": "typescript", "typescript": "typescript",
                 "quit": "quit", "write": "write_to_file", "file": "file", "dir": "create_dir", "cat": "concatenate",
-                "history": "history", "browse" : "browse"}
+                "history": "history", "browse" : "browse", "login" : "login", "pwd" : "pwd"}
 
 def tokenize(input:str) -> list:
     '''Tokenizes input into a list of strings.
