@@ -5,6 +5,13 @@ import threading
 import webbrowser
 
 '''
+Paths, vars, and settings (data specific to each user)
+'''
+default_dir = "C:/"
+working_dir = default_dir
+
+
+'''
 Help functions and documentation
 '''
 num_help_pages = 4
@@ -23,6 +30,7 @@ help_pgs = [help_intro,
             + "dir (dir path: str) - Create a folder at the given directory path.\n"
             + "pwd - Prints the working directory.\n"
             + "ls - Prints the contents of the working directory.\n"
+            + "cd (file path: str) - Changes the current directory.\n"
             + "write (file name: str) (\"data\") - Writes data to the given file. Using quotes around the\n"
             + "data will allow multiple words to be printed on one line. THIS WILL OVERWRITE EXISTING DATA\n"
             + "append (file name: str) (\"data\") - Appends data to the given file.)\n"
@@ -34,7 +42,7 @@ help_pgs = [help_intro,
             + ""]
 
 help_dict = {"help": "Usage: help\nPrints out a standard help introduction page to the PyShell terminal.\n" +
-             "Usage: help (page)\nPrints out the help page with the number (page).",
+                "Usage: help (page)\nPrints out the help page with the number (page).",
              "login": "Usage login\nBegins a login session prompting the user for a username and then a password.",
              "quit": "Usage: quit\nPrompts the user if they would like to exit the PyShell terminal.",
              "time": "Usage: time\nPrints the current time.",
@@ -44,14 +52,17 @@ help_dict = {"help": "Usage: help\nPrints out a standard help introduction page 
              "typescript": "Usage: typescript (start/stop)\nStarts or stops the logging of terminal commands into a typescript.",
              "file": "Usage: file (file name)\nCreates a file with the given name.",
              "dir": "Usage: dir (dir name)\nCreates a folder with the given name.",
-             "write": "Usage: write (file name) \"(data)\"\nWrites data to the given file. THIS WILL OVERWRITE EXISTING DATA."
-             + "Using quotes around a data argument allows multiple words to be printed on one line.",
-             "append": "Usage: append (file name) \"(data)\"\nAppends data the the given file.\n"
-             + "Using quotes around a data argument allows multiple words to be printed on one line.",
+             "write": "Usage: write (file name) \"(data)\"\nWrites data to the given file. THIS WILL OVERWRITE EXISTING DATA."+
+                "Using quotes around a data argument allows multiple words to be printed on one line.",
+             "append": "Usage: append (file name) (data)\nAppends data the the given file.\n"+
+                "Using quotes around a data argument allows multiple words to be printed on one line.",
              "cat": "Usage: cat (file name) (data)\nConcatenates data to the given file and then prints the contents of the file.",
              "history" : "Usage: history\nPrints the command history for the current session.",
              "pwd" : "Usage: pwd\nPrints the working directory.",
-             "ls" : "Usage: ls\nPrints the contents of the working directory."
+             "ls" : "Usage: ls\nPrints the contents of the working directory.",
+             "cd" : "Usage: cd ..\nChanges the current working directory to be its parent directory if possible.\n"+
+                "Usage: cd (file path)\nChanges the current working directory to (file path)."+
+                "Usage: cd ~\n Changes the current working directory to the default file path."
              }
 
 
@@ -188,6 +199,21 @@ def print_working_dir(**args:any)->None:
     '''
     print(os.getcwd())
     
+def change_dir(**args) -> None:
+    global working_dir
+    fn_args = args.get("args")
+
+    if (fn_args != None and isinstance(fn_args, list)):
+        if len(fn_args) > 0:
+            new_path = str(fn_args[0])
+            try:
+                # check that arg is a valid file dir
+                if os.path.exists(new_path) and os.path.isdir(new_path):
+                    working_dir = new_path
+                    os.chdir(new_path)
+            except:
+                print("Unable to change current path to "+str(new_path))
+           
 def list_dir(**args:any)->None:
     '''
     Prints out the contents of the working directory.
@@ -394,28 +420,6 @@ def set_mode(**args):
     if (str(args[0]) in cur_mode):
         cur_mode = modes[len(modes.index(str(args)))]
 
-
-'''
-Paths, vars, and settings (data specific to each user)
-'''
-default_path = "C:/"
-cur_path = default_path
-
-
-def set_cur_path(**args) -> None:
-    global cur_path
-    fn_args = args.get("args")
-
-    if (fn_args != None and isinstance(fn_args, list)):
-        if len(fn_args) > 0:
-            new_path = str(fn_args[0])
-            try:
-                os.path.exists(new_path)
-                cur_path = str(new_path)
-            except:
-                print("Unable to change current path to "+str(new_path))
-
-
 global user_vars
 user_vars = {}
 '''Variables that the user has declared and assigned.'''
@@ -423,7 +427,6 @@ user_vars = {}
 '''
 Adds or updates variable in user-defined variables
 '''
-
 
 def set_var(**args) -> None:
     fn_args = args.get("args")
@@ -473,8 +476,8 @@ command_dict = {"append": "append", "help": "help", "time": "get_time",
                 "wc": "word_count",  "size": "sizeof_file", "clear": "clear",
                 "color": "set_console_color", "ts": "typescript", "typescript": "typescript",
                 "quit": "quit", "write": "write_to_file", "file": "file", "dir": "create_dir", "cat": "concatenate",
-                "history": "history", "browse" : "browse", "login" : "login", "pwd" : "print_working_directory",
-                "ls" : "list_dir"}
+                "history": "history", "browse" : "browse", "login" : "login", "pwd" : "print_working_dir",
+                "ls" : "list_dir", "cd" : "change_dir"}
 
 def tokenize(input:str) -> list:
     '''Tokenizes input into a list of strings.
