@@ -22,6 +22,7 @@ help_pgs = [help_intro,
             + "file (file path: str) - Creates a file at the given file path.\n"
             + "dir (dir path: str) - Create a folder at the given directory path.\n"
             + "pwd - Prints the working directory.\n"
+            + "ls - Prints the contents of the working directory.\n"
             + "write (file name: str) (\"data\") - Writes data to the given file. Using quotes around the\n"
             + "data will allow multiple words to be printed on one line. THIS WILL OVERWRITE EXISTING DATA\n"
             + "append (file name: str) (\"data\") - Appends data to the given file.)\n"
@@ -49,7 +50,8 @@ help_dict = {"help": "Usage: help\nPrints out a standard help introduction page 
              + "Using quotes around a data argument allows multiple words to be printed on one line.",
              "cat": "Usage: cat (file name) (data)\nConcatenates data to the given file and then prints the contents of the file.",
              "history" : "Usage: history\nPrints the command history for the current session.",
-             "pwd" : "Usage: pwd\nPrints the working directory."
+             "pwd" : "Usage: pwd\nPrints the working directory.",
+             "ls" : "Usage: ls\nPrints the contents of the working directory."
              }
 
 
@@ -180,12 +182,25 @@ def concatenate(**args: any) -> None:
             print(contents)
             print("----------------End of contents of "+str(fn_args[0])+"------------")
 
-def pwd(**args:any)->None:
+def print_working_dir(**args:any)->None:
     '''
     Prints the working directory.
     '''
     print(os.getcwd())
     
+def list_dir(**args:any)->None:
+    '''
+    Prints out the contents of the working directory.
+    '''
+    banner = "=================Contents of "+str(os.getcwd())+"============"
+    print(banner)
+    for x in os.listdir():
+        print(x)
+    closing_banner = ""
+    for i in range(0, len(banner)):
+        closing_banner+="="
+    print(closing_banner)
+     
 def sizeof_file(**args: any) -> None:
     fn_args = args.get("args")
 
@@ -458,7 +473,8 @@ command_dict = {"append": "append", "help": "help", "time": "get_time",
                 "wc": "word_count",  "size": "sizeof_file", "clear": "clear",
                 "color": "set_console_color", "ts": "typescript", "typescript": "typescript",
                 "quit": "quit", "write": "write_to_file", "file": "file", "dir": "create_dir", "cat": "concatenate",
-                "history": "history", "browse" : "browse", "login" : "login", "pwd" : "pwd"}
+                "history": "history", "browse" : "browse", "login" : "login", "pwd" : "print_working_directory",
+                "ls" : "list_dir"}
 
 def tokenize(input:str) -> list:
     '''Tokenizes input into a list of strings.
